@@ -1,4 +1,4 @@
-# Home_Organizer_App
+# Personal_Organizer_App
     #### Video Demo:  <Vimeo URL HERE>
     #### Description:
     TODO
