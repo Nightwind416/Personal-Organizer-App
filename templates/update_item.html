@@ -1,13 +1,18 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Add Item
+    Update Item
 {% endblock %}
 
 {% block main %}
-    <form action="/add" method="post">
+    <form action="/update" method="post">
         <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="name" name="name" placeholder="Name of the item to add" type="text">
+            <select class="form-select" aria-label="Default select example" id="item_list" name="item_list">
+                <option selected>Open this select menu</option>
+                {% for item in item_list %}
+                    <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="mb-3">
             <input autocomplete="off" class="form-control mx-auto w-auto" id="type" name="type" placeholder="Type of the item to add" type="text">
@@ -18,7 +23,6 @@
         <div class="mb-3">
             <input autocomplete="off" class="form-control mx-auto w-auto" id="description" name="description" placeholder="Description of the item to add" type="text">
         </div>
-        <button class="btn btn-primary" type="submit">Add Item</button>
+        <button class="btn btn-primary" type="submit">Update Item</button>
     </form>
-
 {% endblock %}
