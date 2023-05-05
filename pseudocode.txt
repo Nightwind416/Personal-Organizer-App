@@ -1,3 +1,0 @@
-
-
-Shelf, Box, Closet, Room, Floor, Location, Wall, Desk, Table
