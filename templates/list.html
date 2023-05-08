@@ -5,9 +5,41 @@
 {% endblock %}
 
 {% block main %}
-    <head>
-        <meta name="viewport" content="initial-scale=1, width=device-width">
-        <title>hello</title>
-    </head>
+
+    {% if request.method == 'GET' %}
+        <form action="/list" method="get">
+            <div class="mb-3">
+                <select class="form-select" aria-label="Default select example" id="location_list" name="location_list">
+                    <option selected>Select a location to narrow your list (leave to list ALL items)</option>
+                    {% for location in location_list %}
+                        <option value="{{ location }}">{{ location }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button class="btn btn-primary" type="submit">Retrieve Item List</button>
+    {% endif %}
+
+    {% if request.method == 'POST' %}
+    <table>
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Item Type</th>
+                <th>Location</th>
+                <th>Detailed Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in item_list %}
+                <tr>
+                    <td>{{ item["Item Name"] }}</td>
+                    <td>{{ item["Item Type"] }}</td>
+                    <td>{{ item["Location"] }}</td>
+                    <td>{{ item["Detailed Info"] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
 
 {% endblock %}

@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Update Selection
+{% endblock %}
+
+{% block main %}
+
+<form action="/update_selection" method="post">
+    <div">
+        {{ item }}
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" class="form-control mx-auto w-auto" id="type" name="type" placeholder="Type of the item to add" type="text">
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" class="form-control mx-auto w-auto" id="location" name="location" placeholder="Location of the item to add" type="text">
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" class="form-control mx-auto w-auto" id="description" name="description" placeholder="Description of the item to add" type="text">
+    </div>
+    <button class="btn btn-primary" type="submit">Add Item</button>
+</form>
+
+{% endblock %}

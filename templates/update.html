@@ -1,11 +1,12 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Update Item
+    Update
 {% endblock %}
 
 {% block main %}
-    <form action="/update" method="post">
+
+    <form action="/update" method="get">
         <div class="mb-3">
             <select class="form-select" aria-label="Default select example" id="item_list" name="item_list">
                 <option selected>Open this select menu</option>
@@ -16,4 +17,5 @@
         </div>
         <button class="btn btn-primary" type="submit">Select item to update</button>
     </form>
+
 {% endblock %}

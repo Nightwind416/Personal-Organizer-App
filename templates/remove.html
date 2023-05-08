@@ -5,9 +5,15 @@
 {% endblock %}
 
 {% block main %}
-    <head>
-        <meta name="viewport" content="initial-scale=1, width=device-width">
-        <title>hello</title>
-    </head>
+
+    <form action="/remove" method="post">
+        <div class="mb-3">
+            <select class="form-select" aria-label="Default select example" id="item_list" name="item_list">
+                <option selected>Select item you wish to remove</option>
+                {% for item in item_list %}
+                    <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
 {% endblock %}
