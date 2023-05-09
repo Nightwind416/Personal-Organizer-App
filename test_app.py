@@ -19,3 +19,7 @@ def test_list():
 
 def test_search():
     ...
+
+
+def test_recycle():
+    ...

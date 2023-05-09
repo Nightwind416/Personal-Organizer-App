@@ -103,19 +103,25 @@ def update():
         return render_template("update.html", item_list=item_list)
 
 
-@app.route("/list", methods=["GET", "POST"])
-def list():
+@app.route("/list_request", methods=["GET", "POST"])
+def list_request():
     if request.method == "POST":
-        location_name = request.form["location"]
-        if location_name == 'Select a location to narrow your list (leave to list ALL items)':
-            location_list = get_location_name_list()
-        else:
-            location_list = get_location_name_list(location_name)
+        location_name = request.form["location_list"]
+        type_name = request.form["type_list"]
+        item_name_list = get_item_name_list(location_name, type_name)
+        # print(item_name_list)
+        display_list = build_list_to_display(item_name_list)
+        # print(display_list)
+        # for item in display_list:
+        #     print(item[0])
+        #     print(item[1])
+        #     print(item[2])
+        #     print(item[3])
+        return render_template('list_results.html', display_list=display_list)
     else:
-        ...
         location_list = get_location_name_list()
-    print(location_list)
-    return render_template("list.html", location_list=location_list)
+        type_list = get_item_type_list()
+        return render_template('list_request.html', location_list=location_list, type_list=type_list)
 
 
 @app.route("/search", methods=["GET", "POST"])
@@ -124,6 +130,16 @@ def search():
         ...
     else:
         return render_template("search.html")
+
+
+@app.route('/item_details', methods=["GET", "POST"])
+def items():
+    if request.method == "POST":
+        ...
+    else:
+        location = request.args.get('location')
+        item = Item.query.filter_by(location=location).all()
+        return render_template('items.html', items=items)
 
 
 @app.route("/recycle", methods=["GET", "POST"])
@@ -149,32 +165,53 @@ def apology(message, code=400):
     return render_template("apology.html", top=code, bottom=escape(message)), code
 
 
-def get_item_name_list(location=None):
-    item_names = set()
+def get_item_name_list(location=None, type=None):
+    item_name_list = []
+    print("location: " + str(location))
+    print("type: " + str(type))
     with open('item_database.csv', 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        next(reader)  # skip header row
+        reader = csv.DictReader(csvfile)
         for row in reader:
-            if location is None or row[2] == location:
-                item_names.add(row[0])
-    return item_names
+            if location is None and type is None:
+                if row['Location'] != 'Recycle Bin':
+                    item_name_list.append(row['Item Name'])
+                    print(item_name_list)
+            elif location is not None and type is not None:
+                if row['Location'] != 'Recycle Bin' and row['Item Type'] == type:
+                    item_name_list.append(row['Item Name'])
+                    print(item_name_list)
+            elif location is not None and type is None:
+                if row['Location'] == location:
+                    item_name_list.append(row['Item Name'])
+                    print(item_name_list)
+    return item_name_list
 
 
 def get_item_type_list():
-    item_types = set()
+    item_type_list = set()
     with open('item_database.csv', 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        next(reader)  # skip header row
+        reader = csv.DictReader(csvfile)
         for row in reader:
-            item_types.add(row[1])
-    return item_types
+            if row['Location'] != 'Recycle Bin':
+                item_type_list.add(row['Item Type'])
+    return item_type_list
 
 
 def get_location_name_list():
-    location_names = set()
+    location_name_list = set()
     with open('item_database.csv', 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        next(reader)  # skip header row
+        reader = csv.DictReader(csvfile)
         for row in reader:
-            location_names.add(row[2])
-    return location_names
+            if row['Location'] != 'Recycle Bin':
+                location_name_list.add(row['Location'])
+    return location_name_list
+
+
+def build_list_to_display(item_names):
+    item_list = []
+    with open('item_database.csv', 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['Item Name'] in item_names:
+                item_list.append([row['Item Name'],row['Item Type'],row['Location'],row['Detailed Info']])
+    return item_list

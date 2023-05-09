@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    List Request
+{% endblock %}
+
+{% block main %}
+
+    <form action="/list_request" method="post">
+        <div class="mb-3">
+            <select class="form-select" aria-label="Default select example" id="location_list" name="location_list">
+                <option value=None>Select a location to narrow your list (leave to list items from ALL locations)</option>
+                {% for location in location_list %}
+                    <option value="{{ location }}">{{ location }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <select class="form-select" aria-label="Default select example" id="type_list" name="type_list">
+                <option value=None>Select a type to narrow your list (leave to list ALL item types)</option>
+                {% for type in type_list %}
+                    <option value="{{ type }}">{{ type }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Retrieve Item List</button>
+    </form>
+
+{% endblock %}
