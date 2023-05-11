@@ -1,6 +1,7 @@
 from flask import Flask, redirect, render_template, request
 import csv
 import os
+import urllib.parse
 
 
 # Configure app
@@ -45,10 +46,10 @@ def index():
 def add():
     if request.method == "POST":
         # Get item details from form
-        item_name = request.form.get("name")
-        item_type = request.form.get("type")
-        item_location = request.form.get("location")
-        item_description = request.form.get("description")
+        item_name = request.form.get("name").capitalize()
+        item_type = request.form.get("type").title()
+        item_location = request.form.get("location").title()
+        item_description = request.form.get("description").capitalize()
         # Check if form entries were left blank
         if not item_name:
             return apology("You must enter an item name", 400)
@@ -66,7 +67,7 @@ def add():
         with open('item_database.csv', 'a', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(new_item)
-        return render_template("index.html")
+        return render_template("item_details.html", reason="Newly Added Item", item=new_item)
     else:
         return render_template("add.html")
 
@@ -79,7 +80,7 @@ def remove():
         return render_template("remove.html")
 
 
-@app.route("/update", methods=["GET", "POST"])
+@app.route("/update_item", methods=["GET", "POST"])
 def update():
     if request.method == "POST":
         # Get item details from form
@@ -99,15 +100,15 @@ def update():
         elif not item_description:
             return apology("You must enter an item description", 400)
         # Create new item to add to database
-        new_item = [item_name,item_type,item_location,item_description]
+        updated_item = [item_name,item_type,item_location,item_description]
         # Add new item to database
         with open('item_database.csv', 'a', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(new_item)
-        return render_template("index.html")
+            writer.writerow(updated_item)
+        return render_template("item_details.html", reason="Updated Item", item=updated_item)
     else:
         item_list = get_item_name_list()
-        return render_template("update.html", item_list=item_list)
+        return render_template("update_item.html", item_list=item_list)
 
 
 @app.route("/list_request", methods=["GET", "POST"])
@@ -137,9 +138,18 @@ def items():
     if request.method == "POST":
         ...
     else:
-        location = request.args.get('location')
-        item = Item.query.filter_by(location=location).all()
-        return render_template('items.html', items=items)
+        html_item_name = request.args.get('name')
+        print("html_item_name:")
+        print(html_item_name)
+        item_name = urllib.parse.unquote(html_item_name)
+        print(item_name)
+        with open('item_database.csv', 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if row['Item Name'] == item_name:
+                    item = [row['Item Name'],row['Item Type'],row['Location'],row['Detailed Info']]
+        # item = ['Test Name','Test Type','Test Location','Test Info']
+        return render_template("item_details.html", reason="Details Requested", item=item)
 
 
 @app.route("/recycle", methods=["GET", "POST"])
@@ -187,24 +197,34 @@ def get_item_name_list(location_name=None, type_name=None):
             elif (location_name != 'None') and (type_name != 'None'):
                 if (row['Location'] == location_name) and (row['Item Type'] == type_name):
                     item_name_list.append(row['Item Name'])
+    if len(item_name_list) > 1:
+        item_name_list = sorted(set(item_name_list))
+    # print(item_name_list)
     return item_name_list
 
 
 def get_item_type_list():
-    item_type_list = set()
+    item_type_list = []
     with open('item_database.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            item_type_list.add(row['Item Type'])
+            item_type_list.append(row['Item Type'])
+    if len(item_type_list) > 1:
+        item_type_list.sort()
+        item_type_list = sorted(set(item_type_list))
+    # print(item_type_list)
     return item_type_list
 
 
 def get_location_name_list():
-    location_name_list = set()
+    location_name_list = []
     with open('item_database.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            location_name_list.add(row['Location'])
+            location_name_list.append(row['Location'])
+    if len(location_name_list) > 1:
+        location_name_list = sorted(set(location_name_list))
+    # print(location_name_list)
     return location_name_list
 
 
@@ -215,6 +235,9 @@ def build_list_to_display(item_names):
         for row in reader:
             if row['Item Name'] in item_names:
                 list_to_display.append([row['Item Name'],row['Item Type'],row['Location'],row['Detailed Info']])
+    if len(list_to_display) > 1:
+        list_to_display.sort(key=lambda x: x[0])
+    # print(list_to_display)
     return list_to_display
 
 

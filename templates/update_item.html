@@ -6,9 +6,9 @@
 
 {% block main %}
 
-<form action="/update_selection" method="post">
+<form action="/update_item" method="post">
     <div">
-        {{ item }}
+        {{ item[0] }}
     </div>
     <div class="mb-3">
         <input autocomplete="off" class="form-control mx-auto w-auto" id="type" name="type" placeholder="Type of the item to add" type="text">
@@ -19,7 +19,7 @@
     <div class="mb-3">
         <input autocomplete="off" class="form-control mx-auto w-auto" id="description" name="description" placeholder="Description of the item to add" type="text">
     </div>
-    <button class="btn btn-primary" type="submit">Add Item</button>
+    <button class="btn btn-primary" type="submit">Update Item</button>
 </form>
 
 {% endblock %}

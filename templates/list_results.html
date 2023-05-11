@@ -6,7 +6,7 @@
 
 {% block main %}
 
-    <table>
+    <table class='list_results'>
         <thead>
             <tr>
                 <th>Item Name</th>
@@ -18,7 +18,7 @@
         <tbody>
             {% for item in display_list %}
                 <tr>
-                    <td>{{ item[0] }}</td>
+                    <td><a href="/item_details?name={{ item[0] }}">{{ item[0] }}</a></td>
                     <td>{{ item[1] }}</td>
                     <td>{{ item[2] }}</td>
                     <td>{{ item[3] }}</td>
