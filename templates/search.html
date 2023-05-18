@@ -6,9 +6,52 @@
 
 {% block main %}
 
-    <head>
-        <meta name="viewport" content="initial-scale=1, width=device-width">
-        <title>hello</title>
-    </head>
+    <form action="/search" method="post">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="search_query" name="search_query" placeholder="Type your search string here" type="text">
+        </div>
+        <button class="btn btn-primary" type="submit">Retrieve Item List</button>
+    </form>
+
+    <p>Search Query: <strong>{{ search_query }}</strong></p>
+
+    <table class='recycle_table'>
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Item Type</th>
+                <th>Location</th>
+                <th>Detailed Info</th>
+                <th>Date Added</th>
+                <th>Last Updated</th>
+                <th>Date Recycled</th>
+                <th>Undo Recycle?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in display_list %}
+                <tr>
+                    <td>
+                        {% set highlighted_info = item[0].replace(search_query, '<strong>' + search_query + '</strong>') %}
+                        {% autoescape false %}
+                            <a href="/item_details?item_name={{ item[0] }}">{{ highlighted_info }}</a>
+                        {% endautoescape %}
+                    </td>
+                    <td>{{ item[1] }}</td>
+                    <td>{{ item[2] }}</td>
+                    <td>
+                        {% set highlighted_info = item[3].replace(search_query, '<strong>' + search_query + '</strong>') %}
+                        {% autoescape false %}
+                            {{ highlighted_info }}
+                        {% endautoescape %}
+                    </td>
+                    <td>{{ item[4] }}</td>
+                    <td>{{ item[5] }}</td>
+                    <td>{{ item[6] }}</td>
+                    <td><a href="/remove_from_recycle?item_name={{ item[0] }}">{{ item[0] }}</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock %}

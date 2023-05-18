@@ -1,43 +1,31 @@
-Item Name,Item Type,Location,Detailed Info
-Test,Test,Test,Test
-Last Unicorn,Book,Bookshelf,Autographed book
-Red Bicycle,Transportation,Garage,Classic Cruiser
-Blue Sunglasses,Accessory,Closet,Mirrored Lenses
-Fuzzy Blanket,Home Decor,Living Room,Soft and Cozy
-Yellow Notebook,Stationery,Desk,Blank Pages
-Silver Spoon,Kitchen Utensil,Silverware Drawer,Polished Finish
-Green Cactus,Plant,Windowsill,Thorny Succulent
-Black Headphones,Electronics,Bedroom,Over-ear Design
-Purple Scarf,Accessory,Closet,Thick Knit
-White Pillow,Bedding,Bed,Fluffy and Soft
-Golden Ring,Jewelry,Jewelry Box,Embedded Gemstones
-Brown Leather Wallet,Accessory,Purse,Zipper Closure
-Gray Umbrella,Accessory,Coat Rack,Foldable and Portable
-Silver Watch,Accessory,Dresser,Analog Display
-Orange Backpack,Bag,Entrance Hall,Large Capacity
-Black Boots,Footwear,Closet,Knee-high
-Pink Perfume,Beauty,Bathroom,Floral Scent
-Blue Water Bottle,Accessories,Kitchen,Reusable
-Green Tea Cup,Kitchenware,Dining Table,Ceramic Material
-Brown Cowboy Hat,Accessory,Closet,Stylish and Durable
-Yellow Highlighter,Stationery,Desk,Chisel Tip
-Purple Pen,Stationery,Desk,Smooth Writing
-White T-Shirt,Clothing,Dresser,Cotton Material
-Black Belt,Accessory,Closet,Leather Material
-Red Baseball Cap,Accessory,Closet,Adjustable Strap
-Green Plant,Plant,Living Room,Oxygen-giving
-Gold Earrings,Jewelry,Jewelry Box,Stylish Design
-Silver Necklace,Jewelry,Jewelry Box,Dangling Pendant
-Brown Leather Shoes,Footwear,Closet,Lace-up Design
-Blue Coffee Mug,Kitchenware,Dining Table,Stoneware Material
-Black Wallet,Accessory,Purse,Minimalist Designtest,test,test,test
-New item,New Type,New Location,new description
-New item 2,Test,Test,New desc 2
-New item 3,Test,Test,New desc 3
-New item 4,Test,Test,Desc
-New item 5,Test,Test,Desc
-Item 6,Test,Test,Sdf
-Item 7,Test,Test,Test
-Item 8,Test,Test,Test
-Item 9,Test,Test,Test
-Item 10,Test,Test,And hwerlkj saed sdlfsdf lfj s dflsj d slsdsdjsldfkj sdl sdl sdlf jsad sdlf sf sfgk sal kjfdlsa fs dfsl fslkf slf sfl ksafl salf jss fl 
+Item Name,Item Type,Location,Detailed Info,Date Added,Date Updated,Date Recycled
+Test,Test,Test,Test,2023-05-14,2023-05-14,2021-06-28
+Last Unicorn,Book,Bookshelf,Autographed book,2022-01-15,2022-07-21,None
+Red Bicycle,Transportation,Garage,Classic Cruiser,2021-03-08,2021-06-25,2021-06-28
+Blue Sunglasses,Accessory,Closet,Mirrored Lenses,2021-05-22,2021-10-04,None
+Fuzzy Blanket,Home Decor,Living Room,Soft and Cozy,2021-12-11,2022-03-05,None
+Yellow Notebook,Stationery,Desk,Blank Pages,2022-04-02,2022-06-30,None
+Silver Spoon,Kitchen Utensil,Silverware Drawer,Polished Finish,2022-03-20,2022-09-01,None
+Green Cactus,Plant,Windowsill,Thorny Succulent,2021-08-05,2022-02-14,None
+Black Headphones,Electronics,Bedroom,Over-ear Design,2021-11-09,2022-07-07,None
+Purple Scarf,Accessory,Closet,Thick Knit,2022-02-16,2022-08-20,None
+White Pillow,Bedding,Bed,Fluffy and Soft,2021-07-13,2021-12-02,None
+Golden Ring,Jewelry,Jewelry Box,Embedded Gemstones,2021-09-28,2022-06-12,None
+Brown Leather Wallet,Accessory,Purse,Zipper Closure,2022-01-10,2022-04-28,None
+Gray Umbrella,Accessory,Coat Rack,Foldable and Portable,2021-10-19,2022-05-09,None
+White T-Shirt,Clothing,Dresser,Cotton Material,2022-03-15,2022-07-17,None
+Black Belt,Accessory,Closet,Leather Material,2021-12-26,2022-02-27,2021-06-28
+Red Baseball Cap,Accessory,Closet,Adjustable Strap,2022-04-08,2022-08-12,None
+Green Plant,Plant,Living Room,Oxygen-giving,2021-06-28,2022-01-08,None
+Gold Earrings,Jewelry,Jewelry Box,Stylish Design,2022-02-05,2022-06-30,None
+Silver Necklace,Jewelry,Jewelry Box,Dangling Pendant,2021-09-12,2022-04-22,None
+Brown Leather Shoes,Footwear,Closet,Lace-up Design,2021-08-12,2022-02-18,None
+Blue Coffee Mug,Kitchenware,Dining Table,Stoneware Material,2022-01-01,2022-06-23,2021-06-28
+Black Wallet,Accessory,Purse,Minimalist Design,2022-03-30,2022-08-08,None
+New item,New Type,New Location,new description,2023-05-14,2023-05-14,None
+New item 2,Test,Test,New desc 2,2023-05-14,2023-05-14,None
+New item 3,Test,Test,New desc 3,2023-05-14,2023-05-14,None
+Item 42,Type 42,Location 42,Description 42,2023-05-14,2023-05-14,None
+Test item 43,Test,Test,Desc,2023-05-14,2023-05-14,2021-06-28
+New item 423,Test,Test,Desc,2023-05-14,2023-05-14,None
+Item sdlf,Test,Test,Sldkf,2023-05-16,2023-05-16,None

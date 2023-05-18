@@ -38,14 +38,6 @@
             </div>
         </nav>
 
-        {% if get_flashed_messages() %}
-            <header>
-                <div class="alert alert-primary mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }}
-                </div>
-            </header>
-        {% endif %}
-
         <main class="container-fluid py-5 text-center" id="content-wrap">
             {% block main %}{% endblock %}
         </main>

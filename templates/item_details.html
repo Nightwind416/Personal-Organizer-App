@@ -24,6 +24,24 @@
             <td>Detailed Info:</td>
             <td>{{ item[3] }}</td>
         </tr>
+        <tr>
+            <td>Date Added:</td>
+            <td>{{ item[4] }}</td>
+        </tr>
+        <tr>
+            <td>Last Updated:</td>
+            <td>{{ item[5] }}</td>
+        </tr>
+        <tr>
+            <td>Date Recycled:</td>
+            <td>{{ item[6] }}</td>
+        </tr>
     </table>
+    <div>
+        <p></p>
+    </div>
+    <form action="/move_to_recycle" method="post">
+        <button class="btn btn-primary" type="submit">Move to Recycle Bin</button>
+    </form>
 
 {% endblock %}
