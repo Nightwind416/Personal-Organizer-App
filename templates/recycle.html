@@ -6,9 +6,9 @@
 
 {% block main %}
 
-    <form action="/empty_recycle" method="post">
-        <button class="btn btn-primary" type="submit">Empty Recycle Bin</button>
-    </form>
+<form id="empty-recycle-form" method="post" onsubmit="return confirmEmptyRecycle()">
+    <button class="btn btn-primary" type="submit">Empty Recycle Bin</button>
+</form>
     <p></p>
     <table class='recycle_table'>
         <thead>
@@ -16,7 +16,6 @@
                 <th>Item Name</th>
                 <th>Item Type</th>
                 <th>Location</th>
-                <th>Detailed Info</th>
                 <th>Date Added</th>
                 <th>Last Updated</th>
                 <th>Date Recycled</th>
@@ -29,14 +28,20 @@
                     <td><a href="/item_details?item_name={{ item[0] }}">{{ item[0] }}</a></td>
                     <td>{{ item[1] }}</td>
                     <td>{{ item[2] }}</td>
-                    <td>{{ item[3] }}</td>
                     <td>{{ item[4] }}</td>
                     <td>{{ item[5] }}</td>
                     <td>{{ item[6] }}</td>
-                    <td><a href="/remove_from_recycle?item_name={{ item[0] }}">remove me</a></td>
+                    <td><a href="/remove_from_recycle?item_name={{ item[0] }}">Restore item</a></td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <script>
+        function confirmEmptyRecycle() {
+            var confirmed = confirm("Are you sure you want to empty the recycle bin?");
+            return confirmed;
+        }
+    </script>
 
 {% endblock %}

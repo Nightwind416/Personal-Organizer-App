@@ -6,6 +6,8 @@
 
 {% block main %}
 
+    <p>Click on an items name to go to view more details on the item</p>
+
     {% if display_list %}
         <table class='list_table'>
             <thead>
@@ -13,8 +15,6 @@
                     <th>Item Name</th>
                     <th>Item Type</th>
                     <th>Location</th>
-                    <th>Detailed Info</th>
-                    <th>Date Added</th>
                     <th>Last Updated</th>
                 </tr>
             </thead>
@@ -24,8 +24,6 @@
                         <td><a href="/item_details?item_name={{ item[0] }}">{{ item[0] }}</a></td>
                         <td>{{ item[1] }}</td>
                         <td>{{ item[2] }}</td>
-                        <td>{{ item[3] }}</td>
-                        <td>{{ item[4] }}</td>
                         <td>{{ item[5] }}</td>
                     </tr>
                 {% endfor %}

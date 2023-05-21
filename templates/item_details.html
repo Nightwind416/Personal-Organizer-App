@@ -32,16 +32,28 @@
             <td>Last Updated:</td>
             <td>{{ item[5] }}</td>
         </tr>
-        <tr>
-            <td>Date Recycled:</td>
-            <td>{{ item[6] }}</td>
-        </tr>
+        {% if item[6] != "None" %}
+            <tr>
+                <td>Date Recycled:</td>
+                <td>{{ item[6] }}</td>
+            </tr>
+        {% endif %}
     </table>
     <div>
         <p></p>
     </div>
-    <form action="/move_to_recycle" method="post">
-        <button class="btn btn-primary" type="submit">Move to Recycle Bin</button>
-    </form>
+    {% if item[6] == "None" %}
+        <form action="/move_to_recycle" method="post">
+            <input type="hidden" name="item_name" value="{{ item[0] }}">
+            <button class="btn btn-primary" type="submit">Move to Recycle Bin</button>
+        </form>
+    {% elif item[6] != "None" %}
+        <form action="/remove_from_recycle" method="post">
+            <input type="hidden" name="item_name" value="{{ item[0] }}">
+            <button class="btn btn-primary" type="submit">Remove from Recycle Bin</button>
+        </form>
+    {% else %}
+        <P></P>
+    {% endif %}
 
 {% endblock %}

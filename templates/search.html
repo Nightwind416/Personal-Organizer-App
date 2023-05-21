@@ -1,57 +1,77 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Search
+    Search Form
 {% endblock %}
 
 {% block main %}
 
-    <form action="/search" method="post">
+    <form action="/search" method="post" onsubmit="return validateForm()">
         <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="search_query" name="search_query" placeholder="Type your search string here" type="text">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="search_query" name="search_query" placeholder="Search string" type="text">
         </div>
-        <button class="btn btn-primary" type="submit">Retrieve Item List</button>
+        <div>
+            <p>Which fields would you like to search (you can select multiple)</p>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="option1" id="option1">
+            <label class="form-check-label" for="option1">Item names?</label>
+        </div>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="option2" id="option2">
+            <label class="form-check-label" for="option2">Item types?</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="option3" id="option3">
+            <label class="form-check-label" for="option3">Item locations?</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="option4" id="option4">
+            <label class="form-check-label" for="option4">Item details?</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="option5" id="option5">
+            <label class="form-check-label" for="option5">Date added?</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="option6" id="option6">
+            <label class="form-check-label" for="option6">Date updated?</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="option7" id="option7">
+            <label class="form-check-label" for="option7">Date Recycled?</label>
+        </div>
+        <div>
+            <button class="btn btn-primary mt-3" type="submit" >Search!</button>
+        </div>
     </form>
 
-    <p>Search Query: <strong>{{ search_query }}</strong></p>
-
-    <table class='recycle_table'>
-        <thead>
-            <tr>
-                <th>Item Name</th>
-                <th>Item Type</th>
-                <th>Location</th>
-                <th>Detailed Info</th>
-                <th>Date Added</th>
-                <th>Last Updated</th>
-                <th>Date Recycled</th>
-                <th>Undo Recycle?</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in display_list %}
-                <tr>
-                    <td>
-                        {% set highlighted_info = item[0].replace(search_query, '<strong>' + search_query + '</strong>') %}
-                        {% autoescape false %}
-                            <a href="/item_details?item_name={{ item[0] }}">{{ highlighted_info }}</a>
-                        {% endautoescape %}
-                    </td>
-                    <td>{{ item[1] }}</td>
-                    <td>{{ item[2] }}</td>
-                    <td>
-                        {% set highlighted_info = item[3].replace(search_query, '<strong>' + search_query + '</strong>') %}
-                        {% autoescape false %}
-                            {{ highlighted_info }}
-                        {% endautoescape %}
-                    </td>
-                    <td>{{ item[4] }}</td>
-                    <td>{{ item[5] }}</td>
-                    <td>{{ item[6] }}</td>
-                    <td><a href="/remove_from_recycle?item_name={{ item[0] }}">{{ item[0] }}</a></td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <script>
+        function validateForm() {
+            var searchQuery = document.getElementById("search_query").value;
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+    
+            if (searchQuery === '') {
+                alert("Please enter a search string.");
+                return false;
+            }
+    
+            if (checkboxes.length === 0) {
+                var confirmMessage = "No options selected. This will search all fields. Are you sure you want to proceed?";
+                if (confirm(confirmMessage)) {
+                    // Set all checkboxes to checked
+                    var allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+                    allCheckboxes.forEach(function (checkbox) {
+                        checkbox.checked = true;
+                    });
+                } else {
+                    return false;
+                }
+            }
+    
+            return true;
+        }
+    </script>
 
 {% endblock %}

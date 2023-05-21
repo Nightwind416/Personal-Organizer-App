@@ -1,0 +1,65 @@
+#page-container {
+    position: relative;
+    min-height: 99vh;
+}
+
+#content-wrap {
+    padding-bottom: 2.5rem;    /* Footer height */
+}
+
+#footer {
+    position: absolute;
+    bottom: 0;
+    width: 98%;
+    height: 2.5rem;            /* Footer height */
+}
+
+.title {
+    font-size: xx-large;
+    color: #0bf3eb;
+    margin-right: 100px;
+}
+
+.spacer {
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+table
+{
+    margin-bottom: 1rem;
+    width: auto;
+    margin: 0 auto;
+    background-color: black;
+    min-width: 300px;
+    max-width: 800px;
+    color: red
+}
+
+tbody tr:nth-of-type(odd)
+{
+    background-color: rgb(50, 50, 50)
+}
+
+table td {
+    min-width: 100px;
+}
+
+table thead {
+    color: white;
+}
+
+/* unvisited link */
+table a:link {
+    /* color: yellow; */
+}
+
+/* visited link */
+table a:visited {
+    /* color: purple; */
+}
+
+/* mouse over link */
+table a:hover {
+    /* color: red; */
+}
