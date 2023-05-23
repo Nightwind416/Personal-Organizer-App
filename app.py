@@ -260,6 +260,7 @@ def empty_recycle():
 def update():
     if request.method == "POST":
         # Get item details from form
+        original_item_name = request.form.get("original_item_name")
         item_name = request.form["name"]
         item_type = request.form.get("type")
         item_location = request.form.get("location")
@@ -267,21 +268,21 @@ def update():
         # Check if form entries were left blank
         if not item_name:
             return apology("You must enter an item name", 400)
-        elif item_name in get_item_name_list():
-            return apology("Sorry, that item name is already used (no duplicates)", 400)
         elif not item_type:
             return apology("You must enter an item type", 400)
         elif not item_location:
             return apology("You must enter an item location", 400)
         elif not item_details:
-            return apology("You must enter an item details", 400)
+            item_details = "*No details provided"
         # Update item details in the database csv
+        updated_item = []
         rows = []
         with open("item_database.csv", "r") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                if row["Item Name"] == item_name:
+                if row["Item Name"] == original_item_name:
                     # Update the item with the new details
+                    row["Item Name"] = item_name
                     row["Item Type"] = item_type
                     row["Location"] = item_location
                     row["Detailed Info"] = item_details
@@ -292,10 +293,20 @@ def update():
             writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
             writer.writeheader()
             writer.writerows(rows)
+        print(updated_item)
         return render_template("item_details.html", reason="Item updated", item=updated_item)
     else:
-        item_list = get_item_name_list()
-        return render_template("update_item.html", item_list=item_list)
+        # Get item name from request
+        html_item_name = request.args.get('item_name')
+        item_name = urllib.parse.unquote(html_item_name)
+        # Get item details from database
+        item = []
+        with open('item_database.csv', 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if row['Item Name'] == item_name:
+                    item = [row ['Item Name'],row['Item Type'],row['Location'],row['Detailed Info'],row['Date Added'],row['Date Updated'],row['Date Recycled']]
+        return render_template("update_item.html", item=item)
 
 
 # Create and define a function to generate and render an 'apology' page
@@ -316,9 +327,7 @@ def apology(message, code=400):
 
 # Create and define a function to build an item name list based on location, type, and recycle status
 def get_item_name_list(location_name="None", type_name="None", recycle=False):
-    # print("Location name: " + str(location_name))
-    # print("Type name: " + str(type_name))
-    # print("Recycle: " + str(recycle))
+    # Build a list of item names based on location, type, and recycle status
     item_name_list = []
     with open('item_database.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -341,48 +350,51 @@ def get_item_name_list(location_name="None", type_name="None", recycle=False):
                 elif location_name != "None" and type_name != "None":
                     if (row['Location'] == location_name) and (row['Item Type'] == type_name):
                         item_name_list.append(row['Item Name'])
+    # Sort and remove duplicates from the list
     if len(item_name_list) > 1:
         item_name_list = sorted(set(item_name_list))
-    # print(item_name_list)
     return item_name_list
 
 
 # Create and define a function to create and return a list of all item types
 def get_item_type_list():
+    # Build a list of item types
     item_type_list = []
     with open('item_database.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             item_type_list.append(row['Item Type'])
+    # Sort and remove duplicates from the list
     if len(item_type_list) > 1:
         item_type_list.sort()
         item_type_list = sorted(set(item_type_list))
-    # print(item_type_list)
     return item_type_list
 
 
 # Create and define a function to create and return a list of all location names
 def get_location_name_list():
+    # Build a list of location names
     location_name_list = []
     with open('item_database.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             location_name_list.append(row['Location'])
+    # Sort and remove duplicates from the list
     if len(location_name_list) > 1:
         location_name_list = sorted(set(location_name_list))
-    # print(location_name_list)
     return location_name_list
 
 
 # Create and define a function to return a list of items to display
 def build_list_to_display(item_name_list):
+    # Build a list of items to display
     list_to_display = []
     with open('item_database.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['Item Name'] in item_name_list:
                 list_to_display.append([row['Item Name'],row['Item Type'],row['Location'],row['Detailed Info'],row['Date Added'],row['Date Updated'],row['Date Recycled']])
+    # Sort and remove duplicates from the list
     if len(list_to_display) > 1:
         list_to_display.sort(key=lambda x: x[0])
-    # print(list_to_display)
     return list_to_display

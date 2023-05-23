@@ -42,6 +42,14 @@
     <div>
         <p></p>
     </div>
+        <form action="/update_item" method="get">
+            <input type="hidden" name="item_name" value="{{ item[0] }}">
+            <button class="btn btn-primary" type="submit">Update Item</button>
+        </form>
+    </div>
+    <div>
+        <p></p>
+    </div>
     {% if item[6] == "None" %}
         <form action="/move_to_recycle" method="post">
             <input type="hidden" name="item_name" value="{{ item[0] }}">
@@ -52,8 +60,6 @@
             <input type="hidden" name="item_name" value="{{ item[0] }}">
             <button class="btn btn-primary" type="submit">Remove from Recycle Bin</button>
         </form>
-    {% else %}
-        <P></P>
     {% endif %}
 
 {% endblock %}

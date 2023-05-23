@@ -7,17 +7,18 @@
 {% block main %}
 
 <form action="/update_item" method="post">
-    <div">
-        {{ item[0] }}
+    <input type="hidden" name="original_item_name" value="{{ item[0] }}">
+    <div class="mb-3">
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="name" name="name" value="{{ item[0] }}" type="text">
     </div>
     <div class="mb-3">
-        <input autocomplete="off" class="form-control mx-auto w-auto" id="type" name="type" placeholder="Type of the item to add" type="text">
+        <input autocomplete="off" class="form-control mx-auto w-auto" id="type" name="type" value="{{ item[1] }}" type="text">
     </div>
     <div class="mb-3">
-        <input autocomplete="off" class="form-control mx-auto w-auto" id="location" name="location" placeholder="Location of the item to add" type="text">
+        <input autocomplete="off" class="form-control mx-auto w-auto" id="location" name="location" value="{{ item[2] }}" type="text">
     </div>
     <div class="mb-3">
-        <input autocomplete="off" class="form-control mx-auto w-auto" id="details" name="details" placeholder="Details of the item to add" type="text">
+        <input autocomplete="off" class="form-control mx-auto w-auto" id="details" name="details" value="{{ item[3] }}" type="text">
     </div>
     <button class="btn btn-primary" type="submit">Update Item</button>
 </form>
