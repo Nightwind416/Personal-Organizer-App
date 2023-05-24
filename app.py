@@ -1,18 +1,18 @@
-from flask import Flask, redirect, render_template, request
+from flask import Flask, redirect, render_template, request, current_app
 import csv
 import os
 import re
 import urllib.parse
+import app_config
 from datetime import datetime
 
 
-# Configure app
+# Setup flask app
 app = Flask(__name__)
 
 
-# Ensure templates are auto-reloaded
-app.config["TEMPLATES_AUTO_RELOAD"] = True
-
+# Set flask app environment
+app.config.from_object("app_config.LiveEnv")
 
 # Configure to prevent caching
 @app.after_request
@@ -25,8 +25,8 @@ def after_request(response):
 
 
 # Create new empty item database, if one does not exist
-if os.path.isfile('item_database.csv') == False:
-    database = open('item_database.csv', 'w', newline='')
+if os.path.isfile(app.config['CSV_FILENAME']) == False:
+    database = open(app.config['CSV_FILENAME'], 'w', newline='')
     database_writer = csv.writer(database)
     # Add the first row as colum labels
     database_writer.writerow(['Item Name', 'Item Type', 'Location', 'Detailed Info', 'Date Added', 'Date Updated', 'Date Recycled'])
@@ -66,7 +66,7 @@ def add():
         date_recycled = "None"
         new_item = [item_name,item_type,item_location,item_details,date_added,date_updated,date_recycled]
         # Add new item to database
-        with open('item_database.csv', 'a', newline='') as file:
+        with open(app.config['CSV_FILENAME'], 'a', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(new_item)
         return render_template("item_details.html", reason="New item added", item=new_item)
@@ -103,7 +103,7 @@ def item():
     item_name = urllib.parse.unquote(html_item_name)
     # Get item details from database
     item = []
-    with open('item_database.csv', 'r') as csvfile:
+    with open(app.config['CSV_FILENAME'], 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['Item Name'] == item_name:
@@ -128,7 +128,7 @@ def search():
         }
         # Build list of items to display
         display_list = []
-        with open('item_database.csv', 'r', newline='') as file:
+        with open(app.config['CSV_FILENAME'], 'r', newline='') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 if options.get('option1') and search_query.lower() in row['Item Name'].lower():
@@ -159,7 +159,7 @@ def recycle():
     if request.method == "POST":
         # Copy the database to a temp list
         rows = []
-        with open("item_database.csv", "r") as csvfile:
+        with open('CSV_FILENAME', "r") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 rows.append(row)
@@ -168,7 +168,7 @@ def recycle():
             if row["Date Recycled"] != "None":
                 rows.remove(row)
         # Write the updated temp list back to the database csv
-        with open("item_database.csv", "w", newline="") as csvfile:
+        with open('CSV_FILENAME', "w", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
             writer.writeheader()
             writer.writerows(rows)
@@ -194,7 +194,7 @@ def move_to_recycle():
         item_name = urllib.parse.unquote(html_item_name)
     # open and read the database csv into a temp list
     rows = []
-    with open("item_database.csv", "r") as csvfile:
+    with open('CSV_FILENAME', "r") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             rows.append(row)
@@ -203,7 +203,7 @@ def move_to_recycle():
         if row["Item Name"] == item_name:
             row["Date Recycled"] = datetime.today().strftime("%Y-%m-%d")
     # write the updated temp list back to the database csv
-    with open("item_database.csv", "w", newline="") as csvfile:
+    with open('CSV_FILENAME', "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
         writer.writeheader()
         writer.writerows(rows)
@@ -221,7 +221,7 @@ def remove_from_recycle():
         item_name = urllib.parse.unquote(html_item_name)
     # open and read the database csv into a temp list
     rows = []
-    with open("item_database.csv", "r") as csvfile:
+    with open('CSV_FILENAME', "r") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             rows.append(row)
@@ -230,7 +230,7 @@ def remove_from_recycle():
         if row["Item Name"] == item_name:
             row["Date Recycled"] = "None"
     # write the updated temp list back to the database csv
-    with open("item_database.csv", "w", newline="") as csvfile:
+    with open('CSV_FILENAME', "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
         writer.writeheader()
         writer.writerows(rows)
@@ -242,13 +242,13 @@ def remove_from_recycle():
 def empty_recycle():
     # open and read the database csv into a temp list, skipping recycled items
     rows = []
-    with open("item_database.csv", "r") as csvfile:
+    with open('CSV_FILENAME', "r") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row["Date Recycled"] == "None":
                 rows.append(row)
     # write the updated temp list back to the database csv
-    with open("item_database.csv", "w", newline="") as csvfile:
+    with open('CSV_FILENAME', "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
         writer.writeheader()
         writer.writerows(rows)
@@ -277,7 +277,7 @@ def update():
         # Update item details in the database csv
         updated_item = []
         rows = []
-        with open("item_database.csv", "r") as csvfile:
+        with open('CSV_FILENAME', "r") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 if row["Item Name"] == original_item_name:
@@ -289,7 +289,7 @@ def update():
                     row["Date Updated"] = datetime.today().strftime('%Y-%m-%d')
                     updated_item = [row['Item Name'],row['Item Type'],row['Location'],row['Detailed Info'],row['Date Added'],row['Date Updated'],row['Date Recycled']]
                 rows.append(row)
-        with open("item_database.csv", "w", newline="") as csvfile:
+        with open('CSV_FILENAME', "w", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
             writer.writeheader()
             writer.writerows(rows)
@@ -301,7 +301,7 @@ def update():
         item_name = urllib.parse.unquote(html_item_name)
         # Get item details from database
         item = []
-        with open('item_database.csv', 'r') as csvfile:
+        with open(app.config['CSV_FILENAME'], 'r') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 if row['Item Name'] == item_name:
@@ -329,7 +329,7 @@ def apology(message, code=400):
 def get_item_name_list(location_name="None", type_name="None", recycle=False):
     # Build a list of item names based on location, type, and recycle status
     item_name_list = []
-    with open('item_database.csv', 'r') as csvfile:
+    with open(app.config['CSV_FILENAME'], 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         if recycle:
             for row in reader:
@@ -360,7 +360,7 @@ def get_item_name_list(location_name="None", type_name="None", recycle=False):
 def get_item_type_list():
     # Build a list of item types
     item_type_list = []
-    with open('item_database.csv', 'r') as csvfile:
+    with open(app.config['CSV_FILENAME'], 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             item_type_list.append(row['Item Type'])
@@ -375,7 +375,7 @@ def get_item_type_list():
 def get_location_name_list():
     # Build a list of location names
     location_name_list = []
-    with open('item_database.csv', 'r') as csvfile:
+    with open(app.config['CSV_FILENAME'], 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             location_name_list.append(row['Location'])
@@ -389,7 +389,7 @@ def get_location_name_list():
 def build_list_to_display(item_name_list):
     # Build a list of items to display
     list_to_display = []
-    with open('item_database.csv', 'r') as csvfile:
+    with open(app.config['CSV_FILENAME'], 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['Item Name'] in item_name_list:
