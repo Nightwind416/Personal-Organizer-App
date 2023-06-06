@@ -17,6 +17,15 @@ if os.path.isfile(app.config['CSV_FILENAME']) == False:
     database.close()
 
 
+# create a function to count database entries
+def count_entries():
+    with open(app.config['CSV_FILENAME'], 'r') as file:
+        reader = csv.reader(file)
+        # subtract 1 to exclude the header row
+        entry_count = sum(1 for row in reader) - 1
+        return entry_count
+
+
 @pytest.fixture
 def client():
     with app.test_client() as client:
@@ -28,6 +37,13 @@ def test_index(client):
     response = client.get("/")
     assert response.status_code == 200
     assert b"Welcome to your Personal Organizer" in response.data
+
+
+# test for empty starting database
+def test_empty_database():
+    expected_entries = 0
+    actual_entries = count_entries()
+    assert actual_entries == expected_entries
 
 
 # test /add route
@@ -58,6 +74,10 @@ def test_add(client):
     response = client.post("/add", data={"name": "UnitTest_New_Item1", "type": "UnitTest_Type", "location": "UnitTest_Location", "details": "UnitTest_Details"})
     assert response.status_code == 400
     assert b"Sorry%2C-that-item-name-is-already-used-%28no-duplicates%29" in response.data
+    # test current database total is accurate
+    expected_entries = 13
+    actual_entries = count_entries()
+    assert actual_entries == expected_entries
 
 
 
