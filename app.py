@@ -1,10 +1,9 @@
-from flask import Flask, redirect, render_template, request
 import csv
 import os
-import re
 import urllib.parse
 from datetime import datetime
 
+from flask import Flask, redirect, render_template, request
 
 # Setup flask app
 flask_app = Flask(__name__)
@@ -12,6 +11,7 @@ flask_app = Flask(__name__)
 
 # Set flask app environment
 flask_app.config.from_object("app_config.LiveEnv")
+# flask_app.config.from_object("app_config.TestEnv")
 
 # Configure to prevent caching
 @flask_app.after_request
@@ -27,26 +27,26 @@ def after_request(response):
 if os.path.isfile(flask_app.config['CSV_FILENAME']) == False:
     database = open(flask_app.config['CSV_FILENAME'], 'w', newline='')
     database_writer = csv.writer(database)
-    # Add the first row as colum labels
+    # Add Sthe first row as colum labels
     database_writer.writerow(['Item Name', 'Item Type', 'Location', 'Detailed Info', 'Date Added', 'Date Updated', 'Date Recycled'])
     database.close()
 
 
-# Create and define the index route
+# Define the index route
 @flask_app.route("/")
 @flask_app.route("/index")
 def index():
     return render_template("index.html")
 
 
-# Create and define a route to add new items to the database
+# Define a route to add new items to the database
 @flask_app.route("/add", methods=["GET", "POST"])
 def add():
     if request.method == "POST":
         # Get item details from form
-        item_name = request.form.get("name").capitalize()
-        item_type = request.form.get("type").title()
-        item_location = request.form.get("location").title()
+        item_name = request.form.get("name")
+        item_type = request.form.get("type")
+        item_location = request.form.get("location")
         item_details = request.form.get("details")
         # Check if form entries were left blank
         if not item_name:
@@ -73,7 +73,7 @@ def add():
         return render_template("add.html")
 
 
-# Create and define a route to list items by type and/or location
+# Define a route to list items by type and/or location
 @flask_app.route("/list_request", methods=["GET", "POST"])
 def list_request():
     if request.method == "POST":
@@ -94,12 +94,15 @@ def list_request():
         return render_template('list_request.html', location_list=location_list, type_list=type_list)
 
 
-# Create and define a route to list an items details, when requested
+# Define a route to list an items details, when requested
 @flask_app.route('/item_details', methods=["GET"])
 def item():
     # Get item name from request
     html_item_name = request.args.get('item_name')
-    item_name = urllib.parse.unquote(html_item_name)
+    if html_item_name is not None:
+            item_name = urllib.parse.unquote(html_item_name)
+    else:
+        item_name = ""
     # Get item details from database
     item = []
     with open(flask_app.config['CSV_FILENAME'], 'r') as csvfile:
@@ -112,7 +115,7 @@ def item():
     return render_template("item_details.html", reason="Detailed Item View", item=item)
 
 
-# Create and define a route to search the database
+# Define a route to search the database
 @flask_app.route("/search", methods=["GET", "POST"])
 def search():
     if request.method == "POST":
@@ -132,19 +135,19 @@ def search():
         with open(flask_app.config['CSV_FILENAME'], 'r', newline='') as file:
             reader = csv.DictReader(file)
             for row in reader:
-                if options.get('option1') and search_query.lower() in row['Item Name'].lower():
+                if search_query is not None and options.get('option1') and search_query in row['Item Name'].lower():
                     display_list.append(row)
-                elif options.get('option2') and search_query.lower() in row['Item Type'].lower():
+                elif search_query is not None and options.get('option2') and search_query in row['Item Type'].lower():
                     display_list.append(row)
-                elif options.get('option3') and search_query.lower() in row['Location'].lower():
+                elif search_query is not None and options.get('option3') and search_query in row['Location'].lower():
                     display_list.append(row)
-                elif options.get('option4') and search_query.lower() in row['Detailed Info'].lower():
+                elif search_query is not None and options.get('option4') and search_query in row['Detailed Info'].lower():
                     display_list.append(row)
-                elif options.get('option5') and search_query.lower() in row['Date Added'].lower():
+                elif search_query is not None and options.get('option5') and search_query in row['Date Added'].lower():
                     display_list.append(row)
-                elif options.get('option6') and search_query.lower() in row['Date Updated'].lower():
+                elif search_query is not None and options.get('option6') and search_query in row['Date Updated'].lower():
                     display_list.append(row)
-                elif options.get('option7') and search_query.lower() in row['Date Recycled'].lower():
+                elif search_query is not None and options.get('option7') and search_query in row['Date Recycled'].lower():
                     display_list.append(row)
         # Check if list is empty
         if len(display_list) == 0:
@@ -154,109 +157,7 @@ def search():
         return render_template("search.html")
 
 
-# Create and define a route to view and empty the recycled items
-@flask_app.route("/recycle", methods=["GET", "POST"])
-def recycle():
-    if request.method == "POST":
-        # Copy the database to a temp list
-        rows = []
-        with open(flask_app.config['CSV_FILENAME'], "r") as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                rows.append(row)
-        # Remove recycle flagged items (items with recycle dates)
-        for row in rows:
-            if row["Date Recycled"] != "None":
-                rows.remove(row)
-        # Write the updated temp list back to the database csv
-        with open(flask_app.config['CSV_FILENAME'], "w", newline="") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
-            writer.writeheader()
-            writer.writerows(rows)
-        return render_template("index.html")
-    else:
-        # Build list of recycled items to display
-        item_name_list = get_item_name_list(recycle=True)
-        display_list = build_list_to_display(item_name_list)
-        # Check if list is empty
-        if len(display_list) == 0:
-            return apology("Recycle bin is empty", 400)
-        return render_template('recycle.html', display_list=display_list)
-
-
-# Create and define a route to move an item to the recycle bin
-@flask_app.route("/move_to_recycle", methods=["GET", "POST"])
-def move_to_recycle():
-    # Get item name depending on request method
-    if request.method == "POST":
-        item_name = request.form.get("item_name")
-    else:
-        html_item_name = request.args.get('item_name')
-        item_name = urllib.parse.unquote(html_item_name)
-    # open and read the database csv into a temp list
-    rows = []
-    with open(flask_app.config['CSV_FILENAME'], "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            rows.append(row)
-    # update items date field, to indicate it was 'recycled'
-    for row in rows:
-        if row["Item Name"] == item_name:
-            row["Date Recycled"] = datetime.today().strftime("%Y-%m-%d")
-    # write the updated temp list back to the database csv
-    with open(flask_app.config['CSV_FILENAME'], "w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-    return redirect("/recycle")
-
-
-# Create and define a route to remove an item from the recycle bin
-@flask_app.route("/remove_from_recycle", methods=["GET", "POST"])
-def remove_from_recycle():
-    # Get item name depending on request method
-    if request.method == "POST":
-        item_name = request.form.get("item_name")
-    else:
-        html_item_name = request.args.get('item_name')
-        item_name = urllib.parse.unquote(html_item_name)
-    # open and read the database csv into a temp list
-    rows = []
-    with open(flask_app.config['CSV_FILENAME'], "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            rows.append(row)
-    # update items date field, to indicate it was 'un-recycled'
-    for row in rows:
-        if row["Item Name"] == item_name:
-            row["Date Recycled"] = "None"
-    # write the updated temp list back to the database csv
-    with open(flask_app.config['CSV_FILENAME'], "w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-    return redirect("/recycle")
-
-
-# Create and define a route to empty the recycle bin
-@flask_app.route("/empty_recycle", methods=["POST"])
-def empty_recycle():
-    # open and read the database csv into a temp list, skipping recycled items
-    rows = []
-    with open(flask_app.config['CSV_FILENAME'], "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            if row["Date Recycled"] == "None":
-                rows.append(row)
-    # write the updated temp list back to the database csv
-    with open(flask_app.config['CSV_FILENAME'], "w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-    return redirect("/recycle")
-
-
-# Create and define a route to update an item
+# Define a route to update an item
 @flask_app.route("/update_item", methods=["GET", "POST"])
 def update():
     if request.method == "POST":
@@ -278,28 +179,29 @@ def update():
         # Update item details in the database csv
         updated_item = []
         rows = []
-        with open(flask_app.config['CSV_FILENAME'], "r") as csvfile:
+        with open(flask_app.config['CSV_FILENAME'], 'r') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                if row["Item Name"] == original_item_name:
-                    # Update the item with the new details
-                    row["Item Name"] = item_name
-                    row["Item Type"] = item_type
-                    row["Location"] = item_location
-                    row["Detailed Info"] = item_details
-                    row["Date Updated"] = datetime.today().strftime('%Y-%m-%d')
-                    updated_item = [row['Item Name'],row['Item Type'],row['Location'],row['Detailed Info'],row['Date Added'],row['Date Updated'],row['Date Recycled']]
+                if row['Item Name'] == original_item_name:
+                    row['Item Name'] = item_name
+                    row['Item Type'] = item_type
+                    row['Location'] = item_location
+                    row['Detailed Info'] = item_details
+                    updated_item = [row['Item Name'], row['Item Type'], row['Location'], row['Detailed Info'], row['Date Added'], row['Date Updated'], row['Date Recycled']]
                 rows.append(row)
-        with open(flask_app.config['CSV_FILENAME'], "w", newline="") as csvfile:
+        with open(flask_app.config['CSV_FILENAME'], 'w', newline='') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
             writer.writeheader()
-            writer.writerows(rows)
-        print(updated_item)
+            for row in rows:
+                writer.writerow(row)
         return render_template("item_details.html", reason="Item updated", item=updated_item)
     else:
         # Get item name from request
         html_item_name = request.args.get('item_name')
-        item_name = urllib.parse.unquote(html_item_name)
+        if html_item_name is not None:
+            item_name = urllib.parse.unquote(html_item_name)
+        else:
+            item_name = ""
         # Get item details from database
         item = []
         with open(flask_app.config['CSV_FILENAME'], 'r') as csvfile:
@@ -308,9 +210,99 @@ def update():
                 if row['Item Name'] == item_name:
                     item = [row ['Item Name'],row['Item Type'],row['Location'],row['Detailed Info'],row['Date Added'],row['Date Updated'],row['Date Recycled']]
         return render_template("update_item.html", item=item)
+    
+
+# Define a route to view and empty the recycled items
+@flask_app.route("/recycle", methods=["GET", "POST"])
+def recycle():
+    if request.method == "POST":
+        # open and read the database csv into a temp list, skipping recycled items
+        rows = []
+        with open(flask_app.config['CSV_FILENAME'], 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                if row['Date Recycled'] == 'None':
+                    rows.append(row)
+                else:
+                    print(row['Item Name'] + " recycled")
+        # write the updated temp list back to the database csv
+        with open(flask_app.config['CSV_FILENAME'], 'w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=reader.fieldnames)
+            writer.writeheader()
+            for row in rows:
+                writer.writerow(row)
+        return redirect("/recycle")
+    else:
+        # Build list of recycled items to display
+        item_name_list = get_item_name_list(recycle=True)
+        display_list = build_list_to_display(item_name_list)
+        # Check if list is empty
+        if len(display_list) == 0:
+            return apology("Recycle bin is empty", 400)
+        return render_template('recycle.html', display_list=display_list)
 
 
-# Create and define a function to generate and render an 'apology' page
+# Define a route to move an item to the recycle bin
+@flask_app.route("/move_to_recycle", methods=["GET", "POST"])
+def move_to_recycle():
+    # Get item name depending on request method
+    if request.method == "POST":
+        item_name = request.form.get("item_name")
+    else:
+        html_item_name = request.args.get('item_name')
+        if html_item_name is not None:
+            item_name = urllib.parse.unquote(html_item_name)
+        else:
+            return apology("No item selected for recycling", 400)
+    # open and read the database csv into a temp list, upadating the date field of the recycled item
+    rows = []
+    with open(flask_app.config['CSV_FILENAME'], "r") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row["Item Name"] == item_name:
+                row["Date Recycled"] = datetime.today().strftime("%Y-%m-%d")
+            rows.append(row)
+    # write the updated temp list back to the database csv
+    with open(flask_app.config['CSV_FILENAME'], 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+    return redirect("/recycle")
+
+
+# Define a route to remove an item from the recycle bin
+@flask_app.route("/remove_from_recycle", methods=["GET", "POST"])
+def remove_from_recycle():
+    # Get item name depending on request method
+    if request.method == "POST":
+        item_name = request.form.get("item_name")
+    else:
+        html_item_name = request.args.get('item_name')
+        if html_item_name is not None:
+            item_name = urllib.parse.unquote(html_item_name)
+        else:
+            item_name = ""
+    # open and read the database csv into a temp list
+    rows = []
+    with open(flask_app.config['CSV_FILENAME'], "r") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            rows.append(row)
+    # update items date field, to indicate it was 'un-recycled'
+    for row in rows:
+        if row["Item Name"] == item_name:
+            row["Date Recycled"] = "None"
+    # write the updated temp list back to the database csv
+    with open(flask_app.config['CSV_FILENAME'], 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+    return redirect("/recycle")
+
+
+# Define a function to generate and render an 'apology' page
 def apology(message, code=400):
     """Render message as an apology to user."""
     def escape(s):
@@ -326,7 +318,7 @@ def apology(message, code=400):
     return render_template("apology.html", top=code, bottom=escape(message)), code
 
 
-# Create and define a function to build an item name list based on location, type, and recycle status
+# Define a function to build an item name list based on location, type, and recycle status
 def get_item_name_list(location_name="None", type_name="None", recycle=False):
     # Build a list of item names based on location, type, and recycle status
     item_name_list = []
@@ -357,7 +349,7 @@ def get_item_name_list(location_name="None", type_name="None", recycle=False):
     return item_name_list
 
 
-# Create and define a function to create and return a list of all item types
+# Define a function to create and return a list of all item types
 def get_item_type_list():
     # Build a list of item types
     item_type_list = []
@@ -372,7 +364,7 @@ def get_item_type_list():
     return item_type_list
 
 
-# Create and define a function to create and return a list of all location names
+# Define a function to create and return a list of all location names
 def get_location_name_list():
     # Build a list of location names
     location_name_list = []
@@ -386,7 +378,7 @@ def get_location_name_list():
     return location_name_list
 
 
-# Create and define a function to return a list of items to display
+# Define a function to return a list of items to display
 def build_list_to_display(item_name_list):
     # Build a list of items to display
     list_to_display = []
