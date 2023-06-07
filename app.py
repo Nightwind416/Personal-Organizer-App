@@ -2,8 +2,8 @@ import csv
 import os
 import urllib.parse
 from datetime import datetime
-
 from flask import Flask, redirect, render_template, request
+
 
 # Setup flask app
 flask_app = Flask(__name__)
@@ -11,7 +11,7 @@ flask_app = Flask(__name__)
 
 # Set flask app environment
 flask_app.config.from_object("app_config.LiveEnv")
-# flask_app.config.from_object("app_config.TestEnv")
+
 
 # Configure to prevent caching
 @flask_app.after_request
@@ -27,7 +27,7 @@ def after_request(response):
 if os.path.isfile(flask_app.config['CSV_FILENAME']) == False:
     database = open(flask_app.config['CSV_FILENAME'], 'w', newline='')
     database_writer = csv.writer(database)
-    # Add Sthe first row as colum labels
+    # Add the first row as header labels
     database_writer.writerow(['Item Name', 'Item Type', 'Location', 'Detailed Info', 'Date Added', 'Date Updated', 'Date Recycled'])
     database.close()
 
@@ -115,48 +115,6 @@ def item():
     return render_template("item_details.html", reason="Detailed Item View", item=item)
 
 
-# Define a route to search the database
-@flask_app.route("/search", methods=["GET", "POST"])
-def search():
-    if request.method == "POST":
-        # Get search query and options from form
-        search_query = request.form.get("search_query")
-        options = {
-            'option1': 'option1' in request.form,
-            'option2': 'option2' in request.form,
-            'option3': 'option3' in request.form,
-            'option4': 'option4' in request.form,
-            'option5': 'option5' in request.form,
-            'option6': 'option6' in request.form,
-            'option7': 'option7' in request.form
-        }
-        # Build list of items to display
-        display_list = []
-        with open(flask_app.config['CSV_FILENAME'], 'r', newline='') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                if search_query is not None and options.get('option1') and search_query in row['Item Name'].lower():
-                    display_list.append(row)
-                elif search_query is not None and options.get('option2') and search_query in row['Item Type'].lower():
-                    display_list.append(row)
-                elif search_query is not None and options.get('option3') and search_query in row['Location'].lower():
-                    display_list.append(row)
-                elif search_query is not None and options.get('option4') and search_query in row['Detailed Info'].lower():
-                    display_list.append(row)
-                elif search_query is not None and options.get('option5') and search_query in row['Date Added'].lower():
-                    display_list.append(row)
-                elif search_query is not None and options.get('option6') and search_query in row['Date Updated'].lower():
-                    display_list.append(row)
-                elif search_query is not None and options.get('option7') and search_query in row['Date Recycled'].lower():
-                    display_list.append(row)
-        # Check if list is empty
-        if len(display_list) == 0:
-            return apology("No items matched your search", 400)
-        return render_template("search_results.html", display_list=display_list, search_query=search_query)
-    else:
-        return render_template("search.html")
-
-
 # Define a route to update an item
 @flask_app.route("/update_item", methods=["GET", "POST"])
 def update():
@@ -211,6 +169,48 @@ def update():
                     item = [row ['Item Name'],row['Item Type'],row['Location'],row['Detailed Info'],row['Date Added'],row['Date Updated'],row['Date Recycled']]
         return render_template("update_item.html", item=item)
     
+
+# Define a route to search the database
+@flask_app.route("/search", methods=["GET", "POST"])
+def search():
+    if request.method == "POST":
+        # Get search query and options from form
+        search_query = request.form.get("search_query")
+        options = {
+            'option1': 'option1' in request.form,
+            'option2': 'option2' in request.form,
+            'option3': 'option3' in request.form,
+            'option4': 'option4' in request.form,
+            'option5': 'option5' in request.form,
+            'option6': 'option6' in request.form,
+            'option7': 'option7' in request.form
+        }
+        # Build list of items to display
+        display_list = []
+        with open(flask_app.config['CSV_FILENAME'], 'r', newline='') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                if search_query is not None and options.get('option1') and search_query in row['Item Name'].lower():
+                    display_list.append(row)
+                elif search_query is not None and options.get('option2') and search_query in row['Item Type'].lower():
+                    display_list.append(row)
+                elif search_query is not None and options.get('option3') and search_query in row['Location'].lower():
+                    display_list.append(row)
+                elif search_query is not None and options.get('option4') and search_query in row['Detailed Info'].lower():
+                    display_list.append(row)
+                elif search_query is not None and options.get('option5') and search_query in row['Date Added'].lower():
+                    display_list.append(row)
+                elif search_query is not None and options.get('option6') and search_query in row['Date Updated'].lower():
+                    display_list.append(row)
+                elif search_query is not None and options.get('option7') and search_query in row['Date Recycled'].lower():
+                    display_list.append(row)
+        # Check if list is empty
+        if len(display_list) == 0:
+            return apology("No items matched your search", 400)
+        return render_template("search_results.html", display_list=display_list, search_query=search_query)
+    else:
+        return render_template("search.html")
+
 
 # Define a route to view and empty the recycled items
 @flask_app.route("/recycle", methods=["GET", "POST"])
@@ -302,13 +302,13 @@ def remove_from_recycle():
     return redirect("/recycle")
 
 
+# Apology function here based on the one from CS50 lesson example
 # Define a function to generate and render an 'apology' page
 def apology(message, code=400):
     """Render message as an apology to user."""
     def escape(s):
         """
         Escape special characters.
-
         https://github.com/jacebrowning/memegen#special-characters
         """
         for old, new in [("-", "--"), (" ", "-"), ("_", "__"), ("?", "~q"),

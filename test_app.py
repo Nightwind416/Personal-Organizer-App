@@ -26,6 +26,7 @@ def count_entries():
         return entry_count
 
 
+# create flask app test client
 @pytest.fixture
 def client():
     with app.test_client() as client:
@@ -62,7 +63,7 @@ def test_add(client):
     assert b"You-must-enter-an-item-location" in response.data
     # test adding 10 new items, correct responses
     for i in range(10):
-        response = client.post("/add", data={"name": f"UnitTest_New_Item{i}", "type": "c", "location": "UnitTest_Location", "details": "UnitTest_Details"})
+        response = client.post("/add", data={"name": f"UnitTest_New_Item{i}", "type": "UnitTest_Type", "location": "UnitTest_Location", "details": "UnitTest_Details"})
         assert response.status_code == 200
         assert b"New item added" in response.data
     # test adding 3 additional items with no details, correct responses
@@ -87,7 +88,10 @@ def test_list_request(client):
     response = client.get("/list_request")
     assert response.status_code == 200
     assert b"List Request" in response.data
-    # test POST request with type selected
+    # test POST request with no selections
+    response = client.post("/list_request", data={"location_list": "None", "type_list": "None"})
+    assert response.status_code == 200
+    assert b"List Results" in response.data# test POST request with type selected
     response = client.post("/list_request", data={"location_list": "None", "type_list": "UnitTest_Type"})
     assert response.status_code == 200
     assert b"List Results" in response.data
@@ -111,10 +115,38 @@ def test_item_details(client):
     response = client.get("/item_details?item_name=UnitTest_New_Item4")
     assert response.status_code == 200
     assert b"Detailed Item View" in response.data
-    # test item found
+    # test different item found
     response = client.get("/item_details?item_name=UnitTest_New_Item_No_Details1")
     assert response.status_code == 200
     assert b"Detailed Item View" in response.data
+
+
+# test update route
+def test_update(client):
+    # test GET request
+    response = client.get("/update_item?item_name=Unittest_new_item0")
+    assert response.status_code == 200
+    assert b"Updating information for:" in response.data
+    # test POST request to update item name
+    response = client.post("/update_item", data={"original_item_name": "UnitTest_New_Item2", "name": "Updated_UnitTest_New_Item2", "type": "UnitTest_Type", "location": "UnitTest_Location", "details": "UnitTest_Details"})
+    assert response.status_code == 200
+    assert b"Item updated" in response.data
+    # test POST request to update item type
+    response = client.post("/update_item", data={"original_item_name": "UnitTest_New_Item3", "name": "UnitTest_New_Item3", "type": "Updated_Type", "location": "UnitTest_Location", "details": "UnitTest_Details"})
+    assert response.status_code == 200
+    assert b"Item updated" in response.data
+    # test POST request to update item location
+    response = client.post("/update_item", data={"original_item_name": "UnitTest_New_Item4", "name": "UnitTest_New_Item4", "type": "UnitTest_Type", "location": "Updated_Location", "details": "UnitTest_Details"})
+    assert response.status_code == 200
+    assert b"Item updated" in response.data
+    # test POST request to update item details
+    response = client.post("/update_item", data={"original_item_name": "UnitTest_New_Item5", "name": "UnitTest_New_Item5", "type": "UnitTest_Type", "location": "UnitTest_Location", "details": "Updated_Details"})
+    assert response.status_code == 200
+    assert b"Item updated" in response.data
+    # test POST request to update all item attributes
+    response = client.post("/update_item", data={"original_item_name": "UnitTest_New_Item6", "name": "Updated_UnitTest_New_Item6", "type": "Updated_Type", "location": "Updated_Location", "details": "Updated_Details"})
+    assert response.status_code == 200
+    assert b"Item updated" in response.data
 
 
 # test /search route
@@ -124,38 +156,29 @@ def test_search(client):
     assert response.status_code == 200
     assert b"Which fields would you like to search" in response.data
     # test POST request with no results
-    response = client.post("/search", data={"query": "Nonexistent_Item"})
+    response = client.post("/search", data={"search_query": "Nonexistent_Item", "option1": "on", "option2": "on", "option3": "on", "option4": "on", "option5": "on", "option6": "on", "option7": "on"})
     assert response.status_code == 400
     assert b"No-items-matched-your-search" in response.data
-    # test POST request with search query (no options)
-    response = client.post("/search", data={"query": "Unittest"})
+    # test POST request with search query (no/all options)
+    response = client.post("/search", data={"search_query": "updated", "option1": "on", "option2": "on", "option3": "on", "option4": "on", "option5": "on", "option6": "on", "option7": "on"})
     assert response.status_code == 200
-    assert b"Search Query: Unittest" in response.data
+    assert b"updated" in response.data
     # test POST request with search query (name option)
-
+    response = client.post("/search", data={"search_query": "updated", "option1": "on", "option2": "off", "option3": "off", "option4": "off", "option5": "off", "option6": "off", "option7": "off"})
+    assert response.status_code == 200
+    assert b"updated" in response.data
     # test POST request with search query (type option)
-
+    response = client.post("/search", data={"search_query": "updated", "option1": "off", "option2": "on", "option3": "off", "option4": "off", "option5": "off", "option6": "off", "option7": "off"})
+    assert response.status_code == 200
+    assert b"updated" in response.data
     # test POST request with search query (location option)
-
+    response = client.post("/search", data={"search_query": "updated", "option1": "off", "option2": "off", "option3": "on", "option4": "off", "option5": "off", "option6": "off", "option7": "off"})
+    assert response.status_code == 200
+    assert b"updated" in response.data
     # test POST request with search query (detail option)
-
-    # test POST request with search query (date added)
-
-    # test POST request with search query (date updated)
-
-    # test POST request with search query (date recycled)
-
-
-# test update route
-def test_update(client):
-    # test GET request
-    response = client.get("/update_item?item_name=Unittest_new_item0")
+    response = client.post("/search", data={"search_query": "updated", "option1": "off", "option2": "off", "option3": "off", "option4": "on", "option5": "off", "option6": "off", "option7": "off"})
     assert response.status_code == 200
-    assert b"Updating information for:" in response.data
-    # test POST request to update item details
-    response = client.post("/update_item", data={"name": "Updated_UnitTest_New_Item1", "type": "Updated_Type", "location": "Updated_Location", "details": "Updated_Details"})
-    assert response.status_code == 200
-    assert b"Item updated" in response.data
+    assert b"updated" in response.data
 
 
 # test /recycle route (view empty recycle bin)
@@ -163,14 +186,13 @@ def test_recycle_view(client):
     # test GET request
     response = client.get("/recycle")
     assert response.status_code == 400
-    assert b"Recycle Bin" in response.data
     assert b"Recycle-bin-is-empty" in response.data
 
 
 # test /move_to_recycle route
 def test_move_to_recycle(client):
     # test POST request to move an item to the recycle bin
-    for i in range(5):
+    for i in range(8):
         response = client.post("/move_to_recycle", data={"item_name": f"UnitTest_New_Item{i}"})
         assert response.status_code == 302
         assert b"Redirecting" in response.data
@@ -179,8 +201,8 @@ def test_move_to_recycle(client):
 # test /remove_from_recycle route
 def test_remove_from_recycle(client):
     # test POST request to remove an item from the recycle bin
-    for i in range(3):
-        response = client.post("/remove_from_recycle", data={"item_name": "UnitTest_New_Item{i}"})
+    for i in range(4):
+        response = client.post("/remove_from_recycle", data={"item_name": f"UnitTest_New_Item{i}"})
         assert response.status_code == 302
         assert b"Redirecting" in response.data
 
@@ -190,8 +212,14 @@ def test_recycle_empty(client):
     # test POST request to empty bin
     response = client.post("/recycle")
     assert response.status_code == 302
-    assert b"Recycle Bin" in response.data
+    # test GET request goes to empty recycle bin
+    response = client.get("/recycle")
+    assert response.status_code == 400
     assert b"Recycle-bin-is-empty" in response.data
+    # test current database total is accurate
+    expected_entries = 10
+    actual_entries = count_entries()
+    assert actual_entries == expected_entries
 
 
 # Delete test item database csv, after all tests are run
