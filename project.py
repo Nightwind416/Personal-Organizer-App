@@ -10,7 +10,7 @@ flask_app = Flask(__name__)
 
 
 # Set flask app environment
-flask_app.config.from_object("app_config.LiveEnv")
+flask_app.config.from_object("project_config.LiveEnv")
 
 
 # Configure to prevent caching
@@ -254,7 +254,7 @@ def move_to_recycle():
             item_name = urllib.parse.unquote(html_item_name)
         else:
             return apology("No item selected for recycling", 400)
-    # open and read the database csv into a temp list, upadating the date field of the recycled item
+    # open and read the database csv into a temp list, updating the date field of the recycled item
     rows = []
     with open(flask_app.config['CSV_FILENAME'], "r") as csvfile:
         reader = csv.DictReader(csvfile)
@@ -391,3 +391,7 @@ def build_list_to_display(item_name_list):
     if len(list_to_display) > 1:
         list_to_display.sort(key=lambda x: x[0])
     return list_to_display
+
+
+if __name__ == '__main__':
+    flask_app.run()

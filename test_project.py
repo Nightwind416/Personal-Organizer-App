@@ -1,11 +1,11 @@
 import pytest
 import os
 import csv
-from app import flask_app as app
+from project import flask_app as app
 
 
 # Set flask app test environment
-app.config.from_object("app_config.TestEnv")
+app.config.from_object("project_config.TestEnv")
 
 
 # Create new empty test item database, if one does not exist
